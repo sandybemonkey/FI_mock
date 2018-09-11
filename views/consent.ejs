@@ -8,6 +8,14 @@
     <title>Consent</title>
 </head>
 <body>
-    <%= title %>
+    <%= given_name %> <%= family_name %> <br>
+    <%= birthdate %> <br>
+    <div class="container">
+        <form action="/interaction/<%= details.uuid %>/consent" method="post">
+            <input class="input" type="hidden" name="confirm" value="yes">
+            <button class="button is-success" type="submit" >Continuer sur ...</button>
+            <button class="button is-danger">Ce n'est pas moi</button>
+        </form>
+    </div>
 </body>
 </html>
