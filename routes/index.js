@@ -19,7 +19,6 @@ module.exports = (app, provider) => {
     try {
       const details = await provider.interactionDetails(req);
       const client = await provider.Client.find(details.params.client_id);
-
       if (details.interaction.error === 'login_required') {
         return res.render('index', {
           client,
@@ -52,7 +51,6 @@ module.exports = (app, provider) => {
   app.post('/interaction/:grant/login', setNoCache, async (req, res, next) => {
     try {
       const account = await Account.findByLogin(req.body.login);
-
       const result = {
         login: {
           account: account.accountId,
@@ -63,10 +61,26 @@ module.exports = (app, provider) => {
         },
         consent: {},
       };
-
-      await provider.interactionFinished(req, res, result);
+      //await provider.interactionFinished(req, res, result)
+      res.redirect('consent')
     } catch (err) {
       next(err);
     }
+  });
+
+  app.get('/interaction/:grant/consent', setNoCache, async (req, res, next) => {
+    //res.render('consent', {title: 'Consent'})
+    const account = await Account.findByLogin(req.body.login);
+    const result = {
+      login: {
+        account: account.accountId,
+        acr: 'urn:mace:incommon:iap:bronze',
+        amr: ['pwd'],
+        remember: !!req.body.remember,
+        ts: Math.floor(Date.now() / 1000),
+      },
+      consent: {},
+    };
+    await provider.interactionFinished(req, res, result)
   });
 };
