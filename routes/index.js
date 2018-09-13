@@ -1,8 +1,8 @@
-const querystring = require('querystring');
+import querystring from 'querystring';
 
-const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
+import { urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
 
-const Account = require('../data/account');
+import Account from '../data/account';
 
 const body = urlencoded({ extended: false });
 
@@ -54,6 +54,12 @@ module.exports = (app, provider) => {
 
   app.post('/interaction/:grant/login', setNoCache, async (req, res, next) => {
     try {
+      Account.authenticate(req.body.login, req.body.password).then((data, err) => {
+        if (err) {
+          console.error(err)
+        }
+        console.log(data)
+      })
       const account = await Account.findByLogin(req.body.login);
       console.log('account......', account)
       const result = {

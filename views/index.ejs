@@ -13,11 +13,11 @@
         <div class="field">
           <input type="hidden" name="uuid" value="<%= details.uuid %>"/>
           <div class="control">
-            <input required class="input is-medium" type="text" placeholder="Enter any login" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
+            <input required class="input is-medium" type="text" name="login" placeholder="Enter any login" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
           </div>
           <br>
           <div class="control">
-            <input required class="input is-medium" type="password" placeholder="and password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
+            <input required class="input is-medium" type="password" name="password" placeholder="and password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
           </div>
           <br>
           <div class="control">
