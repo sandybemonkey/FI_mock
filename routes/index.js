@@ -14,12 +14,10 @@ module.exports = (app, provider) => {
     res.set('Cache-Control', 'no-cache, no-store');
     next();
   }
-  // http://localhost:3000/auth?response_type=code&client_id=c48ff5ae96e870f507507555f7bc4dd361d2aac31df219fe6e92bbcca65f73f5&redirect_uri=http://localhost:3000/callback&scope=openid profile birth&state=customState11&nonce=customNonce11
   app.get('/interaction/:grant', setNoCache, async (req, res, next) => {
     try {
       const details = await provider.interactionDetails(req);
       const client = await provider.Client.find(details.params.client_id);
-      console.log('details params .......',details.params)
       if (details.interaction.error === 'login_required') {
         return res.render('index', {
           client,
@@ -56,12 +54,11 @@ module.exports = (app, provider) => {
     try {
       Account.authenticate(req.body.login, req.body.password).then((data, err) => {
         if (err) {
-          console.error(err)
+          console.error('',err)
         }
         console.log(data)
       })
       const account = await Account.findByLogin(req.body.login);
-      console.log('account......', account)
       const result = {
         login: {
           account: account.accountId,

@@ -22,8 +22,6 @@ class Account {
    *   or not return them in id tokens but only userinfo and so on.
    */
   async claims(use, scope) { // eslint-disable-line no-unused-vars
-    console.log('user',user)
-    console.log('user prenom',user[0].prenom)
     return {
       sub: this.accountId, // it is essential to always return a sub claim
 
@@ -33,27 +31,19 @@ class Account {
         locality: '000',
         postal_code: '000',
         region: '000',
-        street_address: '000',
+        street_address: user[0].adresseFormatee,
       },
-      //birthdate: '1987-10-16',
       birthdate: `${user[0].AAAA}-${user[0].MM}-${user[0].JJ}`,
       email: user[0].email,
-      email_verified: false,
       family_name: user[0].nomDeNaissance,
-      gender: user[0].gender,
+      gender: user[0].Gender,
       given_name: user[0].prenom,
-      locale: 'en-US',
-      middle_name: 'Middle',
-      name: 'John Doe',
+      middle_name: user[0].secondPrenom,
+      name: `${user[0].nomDeNaissance} ${user[0].prenom}`,
       nickname: 'Johny',
-      phone_number: '+49 000 000000',
-      phone_number_verified: false,
-      picture: 'http://lorempixel.com/400/200/',
+      phone_number: user[0].telephone,
       preferred_username: 'Jdawg',
-      profile: 'https://johnswebsite.com',
       updated_at: user[0].updatedAt,
-      website: 'http://example.com',
-      zoneinfo: 'Europe/Berlin',
     };
   }
 
@@ -75,6 +65,8 @@ class Account {
 
   static async authenticate(login, password) {
     let id = null;
+    console.log('login',login)
+    console.log('password',password)
     assert(login, 'identifiant must be provided');
     assert(password, 'password must be provided');
     database.connection.find({
@@ -83,8 +75,9 @@ class Account {
       id = result[0].$oid
       user = result;
       assert(id, 'Invalid credentials provided')
+    }).catch((err) => {
+      console.error('authenticate error',err)
     })
-    console.log(this(id))
     return new this(id);
   }
 }
