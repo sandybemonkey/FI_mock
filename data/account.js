@@ -46,14 +46,14 @@ class Account {
       middle_name: 'Middle',
       name: 'John Doe',
       nickname: 'Johny',
-      /*phone_number: '+49 000 000000',
+      phone_number: '+49 000 000000',
       phone_number_verified: false,
       picture: 'http://lorempixel.com/400/200/',
       preferred_username: 'Jdawg',
       profile: 'https://johnswebsite.com',
-      updated_at: 1454704946,
+      updated_at: user[0].updatedAt,
       website: 'http://example.com',
-      zoneinfo: 'Europe/Berlin',*/
+      zoneinfo: 'Europe/Berlin',
     };
   }
 
