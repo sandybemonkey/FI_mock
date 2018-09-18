@@ -14,6 +14,7 @@ module.exports.provider = {
     devInteractions: false,
     sessionManagement: true,
     discovery: true,
+    claimsParameter: true,
   },
   formats: {
     default: 'opaque',

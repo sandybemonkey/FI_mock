@@ -1,6 +1,7 @@
 import database from './database';
 import { findKey } from 'lodash';
 import assert from 'assert';
+import crypto from 'crypto';
 
 const store = new Map();
 const logins = new Map();
@@ -25,7 +26,7 @@ class Account {
     return {
       sub: this.accountId, // it is essential to always return a sub claim
 
-     address: {
+      address: {
         country: user[0].codePaysDeNaissance,
         formatted: user[0].adresseFormatee,
         locality: '000',
@@ -42,7 +43,7 @@ class Account {
       name: `${user[0].nomDeNaissance} ${user[0].prenom}`,
       nickname: 'Johny',
       phone_number: user[0].telephone,
-      preferred_username: 'Jdawg',
+      preferred_username: `${user[0].prenom}${user[0].nomDeNaissance}`,
       updated_at: user[0].updatedAt,
     };
   }
@@ -65,20 +66,27 @@ class Account {
 
   static async authenticate(login, password) {
     let id = null;
-    console.log('login',login)
-    console.log('password',password)
+    let test;
     assert(login, 'identifiant must be provided');
     assert(password, 'password must be provided');
-    database.connection.find({
+
+    await database.connection.find({
       identifiant: login,
     }).then((result) => {
-      id = result[0].$oid
-      user = result;
-      assert(id, 'Invalid credentials provided')
+      if (result[0]) {
+        if(result[0].identifiant === login) {
+          id = result[0].$oid
+          user = result;
+          console.log('Log Result from database',result)
+          test = result
+        }
+      } else {
+        test = null
+      }
     }).catch((err) => {
-      console.error('authenticate error',err)
+      throw err
     })
-    return new this(id);
+    return test;
   }
 }
 module.exports = Account;

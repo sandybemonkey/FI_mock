@@ -1,20 +1,23 @@
 import querystring from 'querystring';
 
-import { urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
+import {urlencoded} from 'express'; // eslint-disable-line import/no-unresolved
 
 import Account from '../data/account';
 
-const body = urlencoded({ extended: false });
+const body = urlencoded({extended: false});
 
 module.exports = (app, provider) => {
-  const { constructor: { errors: { SessionNotFound } } } = provider;
+  const {constructor: {errors: {SessionNotFound}}} = provider;
 
   function setNoCache(req, res, next) {
     res.set('Pragma', 'no-cache');
     res.set('Cache-Control', 'no-cache, no-store');
     next();
   }
+
   app.get('/interaction/:grant', setNoCache, async (req, res, next) => {
+    let error = {message: ''}
+
     try {
       const details = await provider.interactionDetails(req);
       const client = await provider.Client.find(details.params.client_id);
@@ -23,6 +26,7 @@ module.exports = (app, provider) => {
           client,
           details,
           title: 'Sign-in',
+          error,
           params: querystring.stringify(details.params, ',<br/>', ' = ', {
             encodeURIComponent: value => value,
           }),
@@ -51,27 +55,37 @@ module.exports = (app, provider) => {
   });
 
   app.post('/interaction/:grant/login', setNoCache, async (req, res, next) => {
+    const details = await provider.interactionDetails(req);
+    const client = await provider.Client.find(details.params.client_id);
+
     try {
-      Account.authenticate(req.body.login, req.body.password).then((data, err) => {
-        if (err) {
-          console.error('',err)
-        }
-        console.log(data)
+      Account
+        .authenticate(req.body.login, req.body.password)
+        .then(async (data) => {
+          console.log(data)
+          if (data === null) {
+            let error = {message: 'Invalid credentiales'}
+            res.render('index', {details, client, title: 'Sign-In', error: error});
+          }
+          const account = await Account.findByLogin(req.body.login);
+
+          const result = {
+            login: {
+              account: account.accountId,
+              acr: 'urn:mace:incommon:iap:bronze',
+              amr: ['pwd'],
+              remember: !!req.body.remember,
+              ts: Math.floor(Date.now() / 1000),
+            },
+            consent: {},
+          };
+
+          await provider.interactionFinished(req, res, result)
+        }).catch((err) => {
+          throw err;
       })
-      const account = await Account.findByLogin(req.body.login);
-      const result = {
-        login: {
-          account: account.accountId,
-          acr: 'urn:mace:incommon:iap:bronze',
-          amr: ['pwd'],
-          remember: !!req.body.remember,
-          ts: Math.floor(Date.now() / 1000),
-        },
-        consent: {},
-      };
-      await provider.interactionFinished(req, res, result)
     } catch (err) {
-      next(err);
+      next(err)
     }
   });
 };

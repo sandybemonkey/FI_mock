@@ -8,16 +8,17 @@
   <div class="container">
     <div class="notification has-text-centered">
       <h1 class="title is-1"><%= title %></h1>
-      <p>Welcome to <%= title %></p>
       <form autocomplete="off" action="/interaction/<%= details.uuid %>/login" method="post">
         <div class="field">
           <input type="hidden" name="uuid" value="<%= details.uuid %>"/>
           <div class="control">
-            <input required class="input is-medium" type="text" name="login" placeholder="Enter any login" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
+            <% if (error.message !== '') {%> <label for="login" class="has-text-danger"> Identifiants incrorrects </label> <% } %>
+            <input required class="input is-medium <% if(error.message !== '') {%>help is-danger<%}%>" type="text" name="login" placeholder="Enter any login" <% if (!details.params.login_hint) { %>autofocus="on"<% } else { %> value="<%= details.params.login_hint %>" <% } %>>
           </div>
           <br>
           <div class="control">
-            <input required class="input is-medium" type="password" name="password" placeholder="and password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
+            <% if (error.message !== '') {%> <label for="password" class="has-text-danger"> Password incrorrects </label><% } %>
+            <input required class="input is-medium <% if(error.message !== '') {%>help is-danger<%}%>" type="password" name="password" placeholder="and password" <% if (details.params.login_hint) { %>autofocus="on"<% } %>>
           </div>
           <br>
           <div class="control">

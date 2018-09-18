@@ -27,12 +27,21 @@ class RedisAdapter {
 
   async upsert(id, payload, expiresIn) {
     const key = this.key(id);
+
+    /**
+     * Avoid to keep the user connexion in session
+     */
+    if (payload instanceof Object && payload.loginTs) {
+      return;
+    }
+
     const store = grantable.has(this.name) ? {
       dump: JSON.stringify(payload),
       ...(payload.grantId ? { grantId: payload.grantId } : undefined),
     } : JSON.stringify(payload);
 
     const multi = client.multi();
+
     multi[grantable.has(this.name) ? 'hmset' : 'set'](key, store);
 
     if (expiresIn) {
