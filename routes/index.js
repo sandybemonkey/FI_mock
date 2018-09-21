@@ -85,6 +85,10 @@ module.exports = (app, provider) => {
             let error = {message: 'Invalid credentiales'}
             res.render('index', {details, client, title: 'Sign-In', error: error});
           }
+          if (data === undefined) {
+            let error = {message: 'Invalid credentiales'}
+            res.render('index', {details, client, title: 'Sign-In', error: error});
+          }
           // Get the user info because we need is id
           const account = await Account.findByLogin(req.body.login);
 

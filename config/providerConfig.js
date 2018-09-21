@@ -34,7 +34,6 @@ module.exports.provider = {
   routes: {
     authorization: '/authorize',
     end_session: '/session/end',
-    token: '/token',
     userinfo: '/user',
   },
   formats: {

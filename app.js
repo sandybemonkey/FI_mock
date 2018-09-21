@@ -49,7 +49,6 @@ let server;
    * @param clients, setting the information about the client(id, secret, etc..)
    */
   await provider.initialize({
-    adapter: RedisAdapter,
     clients,
   });
 
