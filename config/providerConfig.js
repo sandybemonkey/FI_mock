@@ -1,3 +1,18 @@
+import config from './config.json';
+
+/**
+ * Provider configuration
+ * @see {@link https://github.com/panva/node-oidc-provider/blob/master/docs/configuration.md#configuration-options}
+ * @type {{cookies: {long: {signed: boolean, maxAge: number},
+ * short: {signed: boolean}, keys: string[]},
+ * claims: {address: string[], email: string[], phone: string[], profile: string[]},
+ * features: {devInteractions: boolean, sessionManagement: boolean, discovery: boolean, claimsParameter: boolean},
+ * routes: {authorization: string, end_session: string, token: string, userinfo: string},
+ * formats: {default: string, AccessToken: string},
+ * prompts: string[], interactionUrl: (function(*, *): string),
+ * logoutSource(*, *): Promise<void>, clientCacheDuration: number,
+ * ttl: {AccessToken: number, AuthorizationCode: number, IdToken: number, DeviceCode: number, RefreshToken: number}}}
+ */
 module.exports.provider = {
   cookies: {
     long: { signed: true, maxAge: (1 * 24 * 60 * 60) * 1000 }, // 1 day in ms
@@ -15,6 +30,12 @@ module.exports.provider = {
     sessionManagement: true,
     discovery: true,
     claimsParameter: true,
+  },
+  routes: {
+    authorization: '/authorize',
+    end_session: '/session/end',
+    token: '/token',
+    userinfo: '/user',
   },
   formats: {
     default: 'opaque',
@@ -65,14 +86,19 @@ module.exports.provider = {
   },
 };
 
+
+/**
+ * Client configuration
+ * @type {{client_id, client_secret, grant_types, response_types_supported, redirect_uris, token_endpoint_auth_method, post_logout_redirect_uris}[]}
+ */
 module.exports.clients = [
   {
-    client_id: 'c48ff5ae96e870f507507555f7bc4dd361d2aac31df219fe6e92bbcca65f73f5',
-    client_secret: '8f373c6e6a48ce0f5931f414b6739e4e0aa82eda20a083dc5c0522b6c691b17b',
-    grant_types: ['refresh_token', 'authorization_code'],
-    response_types_supported: ["code id_token token",],
-    redirect_uris: ['http://localhost:3041/callback'],
-    token_endpoint_auth_method: "client_secret_post",
-    post_logout_redirect_uris: ["http://localhost:3041/logged-out"]
+    client_id: config.client_id,
+    client_secret: config.client_secret,
+    grant_types: config.grant_types,
+    response_types_supported: config.response_types_supported,
+    redirect_uris: config.redirect_uris,
+    token_endpoint_auth_method: config.token_endpoint_auth_method,
+    post_logout_redirect_uris: config.post_logout_redirect_uris
   },
 ];

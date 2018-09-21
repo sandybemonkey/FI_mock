@@ -9,6 +9,17 @@ const uuid = require('uuid/v4');
 
 let user = null;
 
+function checkCredentials(formData, dbData){
+  let result;
+  if (formData === dbData) {
+    result = true;
+  } else {
+    result = false;
+  }
+  return result;
+}
+
+
 class Account {
   constructor(id) {
     this.accountId = id || uuid();
@@ -25,7 +36,6 @@ class Account {
   async claims(use, scope) { // eslint-disable-line no-unused-vars
     return {
       sub: this.accountId, // it is essential to always return a sub claim
-
       address: {
         country: user[0].codePaysDeNaissance,
         formatted: user[0].adresseFormatee,
@@ -35,6 +45,7 @@ class Account {
         street_address: user[0].adresseFormatee,
       },
       birthdate: `${user[0].AAAA}-${user[0].MM}-${user[0].JJ}`,
+      birthcountry: user[0].birthcountry,
       email: user[0].email,
       family_name: user[0].nomDeNaissance,
       gender: user[0].Gender,
@@ -45,9 +56,11 @@ class Account {
       phone_number: user[0].telephone,
       preferred_username: `${user[0].prenom}${user[0].nomDeNaissance}`,
       updated_at: user[0].updatedAt,
+      siret: user[0].siret
     };
   }
 
+  // Find the client with is identifier
   static async findByLogin(login) {
     if (!logins.get(login)) {
       logins.set(login, new Account());
@@ -55,18 +68,20 @@ class Account {
     return logins.get(login);
   }
 
+  // Find the client with the id
   static async findById(ctx, id, token) { // eslint-disable-line no-unused-vars
     // token is a reference to the token used for which a given account is being loaded,
-    //   it is undefined in scenarios where account claims are returned from authorization endpoint
+    // it is undefined in scenarios where account claims are returned from authorization endpoint
     // ctx is the koa request context
-    console.log('findById',id)
    if (!store.get(id)) new Account(id); // eslint-disable-line no-new
     return store.get(id);
   }
 
+  // Checking if the client is valid
   static async authenticate(login, password) {
     let id = null;
-    let test;
+    let output;
+
     assert(login, 'identifiant must be provided');
     assert(password, 'password must be provided');
 
@@ -74,19 +89,21 @@ class Account {
       identifiant: login,
     }).then((result) => {
       if (result[0]) {
-        if(result[0].identifiant === login) {
+        /**
+         * For the demo purpose we only checking the login with our db
+         * you had to do this check on you hash password too
+         */
+        if (checkCredentials(login, result[0].identifiant)) {
           id = result[0].$oid
-          user = result;
-          console.log('Log Result from database',result)
-          test = result
+          output = result
         }
       } else {
-        test = null
+       output = null
       }
     }).catch((err) => {
       throw err
     })
-    return test;
+    return output;
   }
 }
 module.exports = Account;
